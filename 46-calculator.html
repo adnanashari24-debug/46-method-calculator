@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4:6 Method Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e0b;
+    --surface: #1a1814;
+    --surface2: #221f1a;
+    --border: #2e2a24;
+    --accent: #c8924a;
+    --accent2: #e8b87a;
+    --text: #e8e2d8;
+    --muted: #7a7060;
+    --phase1: #c8924a;
+    --phase2: #6b9e7a;
+    --pour1: #d4a870;
+    --pour2: #b8844a;
+    --pour3: #8eb898;
+    --pour4: #6a9e78;
+    --pour5: #4e8460;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+    background-image: 
+      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(200,146,74,0.06) 0%, transparent 70%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='4' fill='%230f0e0b'/%3E%3Ccircle cx='1' cy='1' r='0.4' fill='%23221f1a'/%3E%3C/svg%3E");
+  }
+
+  .container { max-width: 480px; margin: 0 auto; }
+
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+    padding-top: 8px;
+  }
+
+  .title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.4rem;
+    color: var(--accent2);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .subtitle {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+
+  .card-title {
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  /* INPUTS */
+  .input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .input-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    flex: 1;
+    letter-spacing: 0.05em;
+  }
+
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .stepper button {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 1.1rem;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+
+  .stepper button:hover { background: var(--border); }
+
+  .stepper-val {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text);
+    width: 52px;
+    text-align: center;
+    letter-spacing: 0.03em;
+  }
+
+  /* TOGGLE BUTTONS */
+  .toggle-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .toggle-btn {
+    flex: 1;
+    min-width: 70px;
+    padding: 8px 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .toggle-btn.active {
+    background: rgba(200,146,74,0.12);
+    border-color: var(--accent);
+    color: var(--accent2);
+  }
+
+  /* PHASE SLIDERS */
+  .phase-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+
+  .phase-name {
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .phase-value {
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  .p1-name { color: var(--phase1); }
+  .p2-name { color: var(--phase2); }
+
+  .slider-wrap {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(200,146,74,0.4);
+  }
+
+  .slider-hint {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.58rem;
+    color: var(--muted);
+    margin-top: 5px;
+    letter-spacing: 0.05em;
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 14px 0;
+  }
+
+  /* RESULT SECTION */
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+
+  .result-header {
+    background: var(--surface2);
+    padding: 12px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .result-header-title {
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .total-badge {
+    font-size: 0.72rem;
+    color: var(--accent2);
+    font-weight: 500;
+  }
+
+  /* POUR STEPS */
+  .pour-steps { padding: 14px 18px; }
+
+  .step-row {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(46,42,36,0.5);
+    gap: 10px;
+    opacity: 0;
+    transform: translateY(6px);
+    animation: fadeUp 0.3s forwards;
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .step-row:last-child { border-bottom: none; }
+
+  .step-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .step-info { flex: 1; }
+
+  .step-time {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .step-desc {
+    font-size: 0.75rem;
+    color: var(--text);
+    margin-top: 1px;
+  }
+
+  .step-amount {
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: right;
+    min-width: 52px;
+  }
+
+  .step-total {
+    font-size: 0.6rem;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  /* Progress bar per step */
+  .step-bar {
+    height: 2px;
+    border-radius: 1px;
+    margin-top: 4px;
+    transition: width 0.4s;
+  }
+
+  /* PHASE BADGE */
+  .phase-badge {
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .badge-p1 {
+    background: rgba(200,146,74,0.15);
+    color: var(--phase1);
+    border: 1px solid rgba(200,146,74,0.3);
+  }
+
+  .badge-p2 {
+    background: rgba(107,158,122,0.15);
+    color: var(--phase2);
+    border: 1px solid rgba(107,158,122,0.3);
+  }
+
+  /* GRIND CARD */
+  .grind-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+  }
+
+  .grind-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    color: var(--accent2);
+    margin: 6px 0 2px;
+    letter-spacing: 0.05em;
+  }
+
+  .grind-note {
+    font-size: 0.63rem;
+    color: var(--muted);
+    line-height: 1.6;
+    letter-spacing: 0.03em;
+  }
+
+  /* TEMP CARD */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .info-tile {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .info-tile-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .info-tile-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    color: var(--accent2);
+    line-height: 1;
+  }
+
+  .info-tile-sub {
+    font-size: 0.6rem;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  /* TIPS */
+  .tips-card {
+    background: rgba(200,146,74,0.06);
+    border: 1px solid rgba(200,146,74,0.2);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+  }
+
+  .tips-title {
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .tip-item {
+    font-size: 0.68rem;
+    color: var(--text);
+    line-height: 1.7;
+    padding-left: 14px;
+    position: relative;
+    opacity: 0.85;
+  }
+
+  .tip-item::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+
+  /* WATERMARK */
+  .watermark {
+    text-align: center;
+    font-size: 0.58rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    margin-top: 24px;
+    opacity: 0.5;
+  }
+
+  /* MODE SWITCHER */
+  .mode-switcher {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 20px;
+    gap: 4px;
+  }
+
+  .mode-btn {
+    flex: 1;
+    padding: 9px 8px;
+    border: none;
+    border-radius: 7px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    color: var(--muted);
+  }
+
+  .mode-btn.active {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .mode-btn.active.ice {
+    background: rgba(100,180,220,0.1);
+    border-color: rgba(100,180,220,0.35);
+    color: #8dcfe8;
+  }
+
+  /* ICE INFO CARD */
+  .ice-info-card {
+    background: rgba(100,180,220,0.06);
+    border: 1px solid rgba(100,180,220,0.2);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    display: none;
+  }
+
+  .ice-info-card.show { display: block; }
+
+  .ice-info-title {
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #8dcfe8;
+    margin-bottom: 10px;
+  }
+
+  .ice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .ice-tile {
+    background: rgba(100,180,220,0.08);
+    border: 1px solid rgba(100,180,220,0.15);
+    border-radius: 8px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+
+  .ice-tile-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #6ab8d4;
+    margin-bottom: 4px;
+  }
+
+  .ice-tile-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    color: #8dcfe8;
+    line-height: 1;
+  }
+
+  .ice-tile-sub {
+    font-size: 0.55rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .ice-method-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .ice-method-btn {
+    flex: 1;
+    padding: 8px 6px;
+    background: rgba(100,180,220,0.06);
+    border: 1px solid rgba(100,180,220,0.15);
+    border-radius: 7px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .ice-method-btn.active {
+    background: rgba(100,180,220,0.15);
+    border-color: rgba(100,180,220,0.4);
+    color: #8dcfe8;
+  }
+
+  .ice-note {
+    font-size: 0.63rem;
+    color: var(--muted);
+    line-height: 1.65;
+    letter-spacing: 0.03em;
+  }
+
+  .ice-note strong { color: #8dcfe8; }
+
+  /* ICE STEPS special */
+  .ice-step-ice {
+    background: rgba(100,180,220,0.08);
+    border: 1px solid rgba(100,180,220,0.2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .ice-icon { font-size: 1.4rem; }
+  .ice-step-label { font-size: 0.65rem; color: var(--muted); }
+  .ice-step-amount { font-size: 1rem; color: #8dcfe8; font-weight: 500; }
+
+  /* hide/show sections */
+  .hot-only { }
+  .ice-only { display: none; }
+  body.ice-mode .hot-only { display: none; }
+  body.ice-mode .ice-only { display: block; }
+  body.ice-mode .ice-info-card { display: block; }
+
+  /* Phase visual diagram */
+  .phase-diagram {
+    display: flex;
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    gap: 2px;
+  }
+
+  .phase-seg {
+    border-radius: 3px;
+    transition: all 0.4s;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="title">4<em>:</em>6 <em>Method</em></div>
+    <div class="subtitle">Tetsu Kasuya · V60 Calculator</div>
+  </header>
+
+  <!-- MODE SWITCHER -->
+  <div class="mode-switcher">
+    <button class="mode-btn active" id="mode-hot" onclick="setMode('hot')">☕ Hot Brew</button>
+    <button class="mode-btn ice" id="mode-flash" onclick="setMode('flash')">🧊 Flash Brew</button>
+    <button class="mode-btn ice" id="mode-icebrew" onclick="setMode('icebrew')">❄️ Ice Brew</button>
+  </div>
+
+  <!-- ICE INFO CARD -->
+  <div class="ice-info-card" id="ice-info-card">
+    <div class="ice-info-title" id="ice-mode-title">🧊 Flash Brew · Kasuya Method</div>
+
+    <!-- Flash Brew content -->
+    <div id="flash-content">
+      <div class="ice-grid" id="flash-grid">
+        <div class="ice-tile">
+          <div class="ice-tile-label">Kopi</div>
+          <div class="ice-tile-value" id="flash-dose">—</div>
+          <div class="ice-tile-sub">gram</div>
+        </div>
+        <div class="ice-tile">
+          <div class="ice-tile-label">Air Panas</div>
+          <div class="ice-tile-value" id="flash-hotwater">—</div>
+          <div class="ice-tile-sub">gram (60%)</div>
+        </div>
+        <div class="ice-tile">
+          <div class="ice-tile-label">Es di Server</div>
+          <div class="ice-tile-value" id="flash-ice">—</div>
+          <div class="ice-tile-sub">gram (40%)</div>
+        </div>
+      </div>
+      <div class="ice-note">
+        <strong>Setup:</strong> Taruh es di server dulu. Brew hot seperti biasa (4:6 method normal), tapi hanya pakai <strong>60% dari total air</strong> — sisanya sudah digantikan es. Kopi akan langsung dingin saat menetes ke es.<br><br>
+        <strong>Grind:</strong> Sedikit lebih halus dari hot brew (kompensasi volume air lebih sedikit).<br>
+        <strong>Suhu:</strong> Pakai suhu normal sesuai roast level.<br>
+        <strong>Hasil:</strong> Bright, floral, fruity — seperti V60 hot tapi dingin.
+      </div>
+    </div>
+
+    <!-- Ice Brew content (Kasuya original) -->
+    <div id="icebrew-content" style="display:none">
+      <div class="ice-grid">
+        <div class="ice-tile">
+          <div class="ice-tile-label">Kopi</div>
+          <div class="ice-tile-value" id="ib-dose">50</div>
+          <div class="ice-tile-sub">gram</div>
+        </div>
+        <div class="ice-tile">
+          <div class="ice-tile-label">Es Batu</div>
+          <div class="ice-tile-value">500</div>
+          <div class="ice-tile-sub">gram</div>
+        </div>
+        <div class="ice-tile">
+          <div class="ice-tile-label">Air Dingin</div>
+          <div class="ice-tile-value">100</div>
+          <div class="ice-tile-sub">gram</div>
+        </div>
+      </div>
+
+      <div class="ice-step-ice">
+        <div class="ice-icon">1️⃣</div>
+        <div>
+          <div class="ice-step-label">Giling kopi → masukkan ke dripper</div>
+          <div class="ice-step-amount">50g · medium-coarse</div>
+        </div>
+      </div>
+      <div class="ice-step-ice">
+        <div class="ice-icon">2️⃣</div>
+        <div>
+          <div class="ice-step-label">Susun es batu di ATAS bed kopi (seperti Jenga)</div>
+          <div class="ice-step-amount">500g es</div>
+        </div>
+      </div>
+      <div class="ice-step-ice">
+        <div class="ice-icon">3️⃣</div>
+        <div>
+          <div class="ice-step-label">Tuang air dingin perlahan di atas es</div>
+          <div class="ice-step-amount">100g air dingin</div>
+        </div>
+      </div>
+      <div class="ice-step-ice">
+        <div class="ice-icon">4️⃣</div>
+        <div>
+          <div class="ice-step-label">Tunggu semua es mencair → selesai</div>
+          <div class="ice-step-amount">~15–20 menit</div>
+        </div>
+      </div>
+
+      <div class="ice-note" style="margin-top:10px">
+        <strong>Catatan:</strong> Ini resep Kasuya original — dosis besar (50g) untuk mengimbangi ekstraksi lambat dari air es. Hasilnya sangat pekat dan syrupy. Kalau terlalu kuat, tambah es batu di gelas saat minum.<br><br>
+        <strong>Untuk setup V60 01 kamu:</strong> Scale down ke 25g kopi, 250g es, 50g air dingin.
+      </div>
+    </div>
+  </div>
+
+  <!-- FLASH BREW POUR SCHEDULE -->
+  <div class="result-card ice-only" id="flash-schedule" style="display:none">
+    <div class="result-header">
+      <div class="result-header-title">Jadwal Tuangan · Flash Brew</div>
+      <div class="total-badge">~3:30 mnt</div>
+    </div>
+    <div class="pour-steps" id="flash-pour-steps"></div>
+  </div>
+  <div class="card hot-only">
+    <div class="card-title">Dosis & Rasio</div>
+
+    <div class="input-row">
+      <div class="input-label">Kopi (g)</div>
+      <div class="stepper">
+        <button onclick="adjust('dose', -1)">−</button>
+        <div class="stepper-val" id="dose-val">15</div>
+        <button onclick="adjust('dose', 1)">+</button>
+      </div>
+    </div>
+
+    <div class="input-row">
+      <div class="input-label">Rasio (1 : x)</div>
+      <div class="stepper">
+        <button onclick="adjust('ratio', -0.5)">−</button>
+        <div class="stepper-val" id="ratio-val">15</div>
+        <button onclick="adjust('ratio', 0.5)">+</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INPUT: Roast level -->
+  <div class="card hot-only">
+    <div class="card-title">Level Roast</div>
+    <div class="toggle-group">
+      <button class="toggle-btn" id="roast-light" onclick="setRoast('light')">Light</button>
+      <button class="toggle-btn" id="roast-medium" onclick="setRoast('medium')">Medium</button>
+      <button class="toggle-btn active" id="roast-medium-dark" onclick="setRoast('medium-dark')">Med-Dark</button>
+      <button class="toggle-btn" id="roast-dark" onclick="setRoast('dark')">Dark</button>
+    </div>
+  </div>
+
+  <!-- INPUT: Process -->
+  <div class="card hot-only">
+    <div class="card-title">Proses Bean</div>
+    <div class="toggle-group" style="margin-bottom:10px;">
+      <button class="toggle-btn active" id="proc-full-washed" onclick="setProcess('full-washed')">Full Washed</button>
+      <button class="toggle-btn" id="proc-semi-washed" onclick="setProcess('semi-washed')">Semi Washed</button>
+      <button class="toggle-btn" id="proc-natural" onclick="setProcess('natural')">Natural</button>
+      <button class="toggle-btn" id="proc-honey" onclick="setProcess('honey')">Honey</button>
+      <button class="toggle-btn" id="proc-anaerobic" onclick="setProcess('anaerobic')">Anaerobic</button>
+    </div>
+    <div id="process-hint" style="font-size:0.62rem; color:var(--muted); letter-spacing:0.03em; line-height:1.65; padding:10px 12px; background:var(--surface2); border-radius:8px; border:1px solid var(--border);"></div>
+  </div>
+
+  <!-- PHASE 1: Flavor -->
+  <div class="card hot-only">
+    <div class="card-title">Fase 1 — Kontrol Rasa (40%)</div>
+
+    <div class="phase-label">
+      <span class="phase-name p1-name">Tuangan 1</span>
+      <span class="phase-value" id="p1-val" style="color:var(--pour1)">—</span>
+    </div>
+    <div class="slider-wrap">
+      <input type="range" id="flavor-slider" min="30" max="70" value="50" oninput="recalc()">
+      <div class="slider-hint">
+        <span>← Lebih Manis</span>
+        <span>Lebih Asam →</span>
+      </div>
+    </div>
+
+    <div class="phase-label">
+      <span class="phase-name" style="color:var(--pour2)">Tuangan 2</span>
+      <span class="phase-value" id="p2-val" style="color:var(--pour2)">—</span>
+    </div>
+  </div>
+
+  <!-- PHASE 2: Strength -->
+  <div class="card hot-only">
+    <div class="card-title">Fase 2 — Kontrol Kekuatan (60%)</div>
+    <div class="toggle-group">
+      <button class="toggle-btn" id="str-light" onclick="setStrength('light')">Ringan<br><span style="font-size:0.55rem;opacity:0.6">1 tuangan</span></button>
+      <button class="toggle-btn active" id="str-medium" onclick="setStrength('medium')">Sedang<br><span style="font-size:0.55rem;opacity:0.6">2 tuangan</span></button>
+      <button class="toggle-btn" id="str-strong" onclick="setStrength('strong')">Kuat<br><span style="font-size:0.55rem;opacity:0.6">3 tuangan</span></button>
+    </div>
+    <div style="margin-top:10px; font-size:0.62rem; color:var(--muted); letter-spacing:0.04em; line-height:1.6;">
+      Med-Dark / Dark roast → mulai dari Sedang atau Ringan dulu
+    </div>
+  </div>
+
+  <!-- GRIND SETTING -->
+  <div class="grind-card hot-only">
+    <div class="card-title">Grind · Timemore C3 ESP Pro</div>
+    <div class="grind-value" id="grind-val">1.8.0</div>
+    <div class="grind-note" id="grind-note">Medium-coarse untuk medium-dark roast. Kalau drain terlalu cepat → giling lebih halus ke 1.5.0</div>
+  </div>
+
+  <!-- INFO TILES -->
+  <div class="info-grid hot-only">
+    <div class="info-tile">
+      <div class="info-tile-label">Suhu Air</div>
+      <div class="info-tile-value" id="temp-val">83°C</div>
+      <div class="info-tile-sub" id="temp-note">med-dark roast</div>
+    </div>
+    <div class="info-tile">
+      <div class="info-tile-label">Total Air</div>
+      <div class="info-tile-value" id="water-total">225g</div>
+      <div class="info-tile-sub" id="ratio-note">rasio 1:15</div>
+    </div>
+  </div>
+
+  <!-- POUR SCHEDULE -->
+  <div class="result-card hot-only">
+    <div class="result-header">
+      <div class="result-header-title">Jadwal Tuangan</div>
+      <div class="total-badge" id="total-badge">~3:30 mnt</div>
+    </div>
+    <div class="pour-steps" id="pour-steps">
+      <!-- Generated by JS -->
+    </div>
+  </div>
+
+  <!-- PHASE DIAGRAM -->
+  <div class="phase-diagram hot-only" id="phase-diagram"></div>
+
+  <!-- TIPS -->
+  <div class="tips-card hot-only" id="tips-section">
+    <div class="tips-title">Tips Sesi Ini</div>
+    <div id="tips-content"></div>
+  </div>
+
+  <div class="watermark">Tetsu Kasuya 4:6 Method · Hario V60</div>
+
+</div>
+
+<script>
+  let state = {
+    dose: 15,
+    ratio: 15,
+    roast: 'medium-dark',
+    flavorSlider: 50,
+    strength: 'medium',
+    process: 'full-washed',
+    mode: 'hot'
+  };
+
+  function setMode(m) {
+    state.mode = m;
+    // Update button styles
+    ['hot','flash','icebrew'].forEach(id => {
+      const btn = document.getElementById('mode-' + id);
+      btn.classList.remove('active');
+    });
+    document.getElementById('mode-' + m).classList.add('active');
+
+    // Toggle body class for css show/hide
+    if (m === 'hot') {
+      document.body.classList.remove('ice-mode');
+      document.getElementById('ice-info-card').style.display = 'none';
+      document.getElementById('flash-schedule').style.display = 'none';
+    } else {
+      document.body.classList.add('ice-mode');
+      document.getElementById('ice-info-card').style.display = 'block';
+
+      // Show correct content
+      document.getElementById('flash-content').style.display = m === 'flash' ? 'block' : 'none';
+      document.getElementById('icebrew-content').style.display = m === 'icebrew' ? 'block' : 'none';
+      document.getElementById('flash-schedule').style.display = m === 'flash' ? 'block' : 'none';
+
+      // Title
+      document.getElementById('ice-mode-title').textContent = m === 'flash'
+        ? '🧊 Flash Brew · Kasuya Method'
+        : '❄️ Ice Brew · Kasuya Original';
+    }
+
+    recalc();
+  }
+
+  const processData = {
+    'full-washed': {
+      hint: '☕ <strong style="color:var(--accent2)">Full Washed</strong> — Rasa paling clean, acidity bright dan jelas. Tuangan 1 bisa lebih besar untuk menonjolkan acidity. Suhu lebih tinggi oke. Paling cocok dengan V60.',
+      sliderNudge: +5,   // nudge slider ke kanan (lebih asam)
+      tempBonus: 0,
+    },
+    'semi-washed': {
+      hint: '☕ <strong style="color:var(--accent2)">Semi Washed</strong> — Antara washed dan natural. Body lebih tebal dari full washed, acidity lebih soft. Setting balanced sudah cocok, tidak perlu banyak adjustment.',
+      sliderNudge: 0,
+      tempBonus: 0,
+    },
+    'natural': {
+      hint: '🍓 <strong style="color:var(--accent2)">Natural</strong> — Jammy, fruity, full-bodied. Tuangan 1 lebih kecil (slider ke kiri) agar sweetness keluar. Grind sedikit lebih kasar — natural mudah over-extract karena kandungan gula tinggi. Fase 2 cukup 2 tuangan.',
+      sliderNudge: -8,   // nudge slider ke kiri (lebih manis)
+      tempBonus: -2,
+    },
+    'honey': {
+      hint: '🍯 <strong style="color:var(--accent2)">Honey</strong> — Manis dan syrupy, antara washed dan natural. Setting balanced sudah bagus. Body sedikit lebih tebal dari washed.',
+      sliderNudge: -3,
+      tempBonus: 0,
+    },
+    'anaerobic': {
+      hint: '🍷 <strong style="color:var(--accent2)">Anaerobic</strong> — Paling kompleks dan eksperimental. Rasa tropical fruit, floral, kadang seperti wine. Grind lebih kasar dan suhu lebih rendah — fermentasi intens membuatnya mudah over-extract. Mulai dari strength Ringan atau Sedang dulu.',
+      sliderNudge: -5,
+      tempBonus: -3,
+    },
+  };
+
+  function setProcess(p) {
+    state.process = p;
+    const ids = ['full-washed','semi-washed','natural','honey','anaerobic'];
+    ids.forEach(id => {
+      const el = document.getElementById('proc-' + id);
+      if (el) el.classList.toggle('active', id === p);
+    });
+    const hint = document.getElementById('process-hint');
+    if (hint) hint.innerHTML = processData[p].hint;
+    recalc();
+  }
+
+  const roastData = {
+    'light':       { temp: '93°C', tempNote: 'light roast', grind: '1.5.0', grindRange: '1.3.0 – 1.7.0', grindNote: 'Medium-coarse, light roast lebih padat. Kalau sour → giling lebih halus.' },
+    'medium':      { temp: '88°C', tempNote: 'medium roast', grind: '1.7.0', grindRange: '1.5.0 – 1.9.0', grindNote: 'Coarse standard 4:6. Kalau pahit → giling lebih kasar ke 1.9.0+.' },
+    'medium-dark': { temp: '83°C', tempNote: 'med-dark roast', grind: '1.8.0', grindRange: '1.6.0 – 2.0.0', grindNote: 'Med-dark lebih mudah over-extract. Mulai coarse, adjust dari situ.' },
+    'dark':        { temp: '83°C', tempNote: 'dark roast', grind: '2.0.0', grindRange: '1.8.0 – 2.2.0', grindNote: 'Dark roast soluble tinggi. Grind kasar + suhu rendah untuk hindari pahit.' }
+  };
+
+  const strengthPours = {
+    'light':  1,
+    'medium': 2,
+    'strong': 3
+  };
+
+  function adjust(key, delta) {
+    if (key === 'dose') {
+      state.dose = Math.max(10, Math.min(30, state.dose + delta));
+    } else if (key === 'ratio') {
+      state.ratio = Math.max(12, Math.min(18, parseFloat((state.ratio + delta).toFixed(1))));
+    }
+    document.getElementById(key + '-val').textContent = state[key];
+    recalc();
+  }
+
+  function setRoast(r) {
+    state.roast = r;
+    ['light','medium','medium-dark','dark'].forEach(id => {
+      document.getElementById('roast-' + id).classList.toggle('active', id === r);
+    });
+    recalc();
+  }
+
+  function setStrength(s) {
+    state.strength = s;
+    ['light','medium','strong'].forEach(id => {
+      document.getElementById('str-' + id).classList.toggle('active', id === s);
+    });
+    recalc();
+  }
+
+  function recalc() {
+    state.flavorSlider = parseInt(document.getElementById('flavor-slider').value);
+
+    // Apply process nudge to flavor slider (visual only, for tips)
+    const pd = processData[state.process] || processData['full-washed'];
+    const effectiveSlider = Math.min(70, Math.max(30, state.flavorSlider + pd.sliderNudge));
+
+    const totalWater = Math.round(state.dose * state.ratio);
+    const phase1 = Math.round(totalWater * 0.4);
+    const phase2 = totalWater - phase1;
+
+    // Phase 1: split by effective slider
+    const p1 = Math.round(phase1 * effectiveSlider / 100);
+    const p2 = phase1 - p1;
+
+    // Phase 2: split by strength
+    const numPours2 = strengthPours[state.strength];
+    const p2Pours = [];
+    const base = Math.floor(phase2 / numPours2);
+    const rem = phase2 - (base * numPours2);
+    for (let i = 0; i < numPours2; i++) {
+      p2Pours.push(i === numPours2 - 1 ? base + rem : base);
+    }
+
+    // Update hot brew UI
+    document.getElementById('p1-val').textContent = p1 + 'g';
+    document.getElementById('p2-val').textContent = p2 + 'g';
+    document.getElementById('water-total').textContent = totalWater + 'g';
+    document.getElementById('ratio-note').textContent = 'rasio 1:' + state.ratio;
+
+    const rd = roastData[state.roast];
+    const tempBase = parseInt(rd.temp);
+    const tempFinal = tempBase + pd.tempBonus;
+    document.getElementById('temp-val').textContent = tempFinal + '°C';
+    document.getElementById('temp-note').textContent = rd.tempNote + (pd.tempBonus !== 0 ? ` · adj. proses` : '');
+    document.getElementById('grind-val').textContent = rd.grind;
+    document.getElementById('grind-note').textContent = `Range: ${rd.grindRange}. ${rd.grindNote}`;
+
+    // --- FLASH BREW CALC ---
+    // Flash brew: ice replaces 40% of total water, brew with 60% hot water
+    const flashHot = Math.round(totalWater * 0.6);
+    const flashIce = totalWater - flashHot;
+    const el_fd = document.getElementById('flash-dose');
+    const el_fh = document.getElementById('flash-hotwater');
+    const el_fi = document.getElementById('flash-ice');
+    if (el_fd) el_fd.textContent = state.dose;
+    if (el_fh) el_fh.textContent = flashHot;
+    if (el_fi) el_fi.textContent = flashIce;
+
+    // Flash brew pour schedule (apply 4:6 only to hot water portion)
+    const fPhase1 = Math.round(flashHot * 0.4);
+    const fPhase2 = flashHot - fPhase1;
+    const fp1 = Math.round(fPhase1 * state.flavorSlider / 100);
+    const fp2 = fPhase1 - fp1;
+    const fNumPours2 = strengthPours[state.strength];
+    const fP2Pours = [];
+    const fBase = Math.floor(fPhase2 / fNumPours2);
+    const fRem = fPhase2 - (fBase * fNumPours2);
+    for (let i = 0; i < fNumPours2; i++) {
+      fP2Pours.push(i === fNumPours2 - 1 ? fBase + fRem : fBase);
+    }
+    const flashPours = [fp1, fp2, ...fP2Pours];
+    buildFlashSteps(flashPours, flashHot);
+
+    // Build hot pour steps
+    const allPours = [p1, p2, ...p2Pours];
+    const colors = ['var(--pour1)','var(--pour2)','var(--pour3)','var(--pour4)','var(--pour5)'];
+    const times = ['0:00','0:45','1:30','2:15','3:00','3:45'];
+    const stepsEl = document.getElementById('pour-steps');
+    stepsEl.innerHTML = '';
+
+    let running = 0;
+    allPours.forEach((amt, i) => {
+      running += amt;
+      const row = document.createElement('div');
+      row.className = 'step-row';
+      row.style.animationDelay = (i * 0.06) + 's';
+      const pct = Math.round((amt / totalWater) * 100);
+      const isP1 = i < 2;
+      row.innerHTML = `
+        <div class="step-num" style="background:${colors[i]}22; color:${colors[i]}; border:1px solid ${colors[i]}44">${i+1}</div>
+        <div class="step-info">
+          <div class="step-time">${times[i]}</div>
+          <div class="step-desc">${getPourDesc(i, state)}</div>
+          <div class="step-bar" style="background:${colors[i]}33; width:${pct*2}px; max-width:100%;"></div>
+        </div>
+        <div>
+          <div class="step-amount" style="color:${colors[i]}">${amt}g</div>
+          <div class="step-total">${running}g total</div>
+        </div>
+        <div class="phase-badge ${isP1 ? 'badge-p1' : 'badge-p2'}">${isP1 ? 'F1' : 'F2'}</div>
+      `;
+      stepsEl.appendChild(row);
+    });
+
+    const totalMins = allPours.length <= 3 ? '~2:30' : allPours.length === 4 ? '~3:00' : '~3:30';
+    document.getElementById('total-badge').textContent = totalMins + ' mnt';
+
+    // Phase diagram
+    const diag = document.getElementById('phase-diagram');
+    diag.innerHTML = '';
+    allPours.forEach((amt, i) => {
+      const seg = document.createElement('div');
+      seg.className = 'phase-seg';
+      seg.style.flex = amt;
+      seg.style.background = colors[i];
+      diag.appendChild(seg);
+    });
+
+    buildTips(state, p1, p2, totalWater);
+  }
+
+  function buildFlashSteps(pours, totalHot) {
+    const stepsEl = document.getElementById('flash-pour-steps');
+    if (!stepsEl) return;
+    stepsEl.innerHTML = '';
+    const colors = ['var(--pour1)','var(--pour2)','var(--pour3)','var(--pour4)','var(--pour5)'];
+    const iceColor = '#6ab8d4';
+    const times = ['0:00','0:45','1:30','2:15','3:00','3:45'];
+
+    // Add "setup" step: put ice in server
+    const setupRow = document.createElement('div');
+    setupRow.className = 'step-row';
+    setupRow.style.animationDelay = '0s';
+    setupRow.innerHTML = `
+      <div class="step-num" style="background:rgba(100,180,220,0.12); color:${iceColor}; border:1px solid rgba(100,180,220,0.3)">❄</div>
+      <div class="step-info">
+        <div class="step-time">Setup</div>
+        <div class="step-desc">Taruh es di dalam server/carafe dulu</div>
+        <div class="step-bar" style="background:rgba(100,180,220,0.2); width:100%; max-width:100%;"></div>
+      </div>
+      <div>
+        <div class="step-amount" style="color:${iceColor}" id="flash-ice-label">—</div>
+        <div class="step-total">gram es</div>
+      </div>
+      <div class="phase-badge" style="background:rgba(100,180,220,0.12); color:${iceColor}; border:1px solid rgba(100,180,220,0.25); font-size:0.55rem; letter-spacing:0.1em; padding:2px 7px; border-radius:3px;">Es</div>
+    `;
+    stepsEl.appendChild(setupRow);
+
+    // Update ice label
+    setTimeout(() => {
+      const lbl = document.getElementById('flash-ice-label');
+      if (lbl) lbl.textContent = document.getElementById('flash-ice').textContent;
+    }, 10);
+
+    // Pour steps
+    let running = 0;
+    pours.forEach((amt, i) => {
+      running += amt;
+      const row = document.createElement('div');
+      row.className = 'step-row';
+      row.style.animationDelay = ((i + 1) * 0.06) + 's';
+      const pct = Math.round((amt / totalHot) * 100);
+      const isP1 = i < 2;
+      row.innerHTML = `
+        <div class="step-num" style="background:${colors[i]}22; color:${colors[i]}; border:1px solid ${colors[i]}44">${i+1}</div>
+        <div class="step-info">
+          <div class="step-time">${times[i]}</div>
+          <div class="step-desc">${getFlashPourDesc(i)}</div>
+          <div class="step-bar" style="background:${colors[i]}33; width:${pct*2}px; max-width:100%;"></div>
+        </div>
+        <div>
+          <div class="step-amount" style="color:${colors[i]}">${amt}g</div>
+          <div class="step-total">${running}g / ${totalHot}g</div>
+        </div>
+        <div class="phase-badge ${isP1 ? 'badge-p1' : 'badge-p2'}">${isP1 ? 'F1' : 'F2'}</div>
+      `;
+      stepsEl.appendChild(row);
+    });
+  }
+
+  function getFlashPourDesc(i) {
+    const d = [
+      'Tuang melingkar dari tengah ke luar',
+      'Tunggu bed kering, tuang kedua',
+      'Fase kekuatan — tuang ke es',
+      'Pertahankan spiral pour',
+      'Tuangan terakhir',
+    ];
+    return d[i] || `Tuangan ${i+1}`;
+  }
+
+  function getPourDesc(i, s) {
+    const descs = [
+      'Tuangan 1 · Basahi semua kopi, spiral dari tengah',
+      'Tuangan 2 · Tunggu bed kering dulu',
+      'Tuangan 3 · Fase kekuatan mulai',
+      'Tuangan 4 · Pertahankan tempo',
+      'Tuangan 5 · Tuangan terakhir',
+    ];
+    return descs[i] || `Tuangan ${i+1}`;
+  }
+
+  function buildTips(s, p1, p2, total) {
+    const tips = [];
+
+    // Process-based tip
+    const procTips = {
+      'full-washed': 'Full Washed → acidity bright. Tuangan 1 bisa lebih besar untuk menonjolkan karakter origin.',
+      'semi-washed': 'Semi Washed → balance antara clean dan body. Tidak perlu adjustment ekstrem.',
+      'natural': 'Natural → mudah over-extract. Grind sedikit lebih kasar, tuangan 1 lebih kecil agar sweetness keluar.',
+      'honey': 'Honey → sweetness alami sudah tinggi. Jaga suhu dan grind stabil untuk hasil syrupy.',
+      'anaerobic': 'Anaerobic → fermentasi intens. Grind lebih kasar dan suhu lebih rendah agar rasa tidak terlalu funky.',
+    };
+    if (procTips[s.process]) tips.push(procTips[s.process]);
+
+    if (s.flavorSlider < 40) {
+      tips.push('Tuangan 1 kecil → profil lebih manis. Cocok untuk dark/medium-dark roast.');
+    } else if (s.flavorSlider > 60) {
+      tips.push('Tuangan 1 besar → profil lebih bright/asam. Cocok untuk light roast.');
+    } else {
+      tips.push('Tuangan 1 & 2 seimbang → profil balanced antara manis dan asam.');
+    }
+
+    if (s.roast === 'medium-dark' || s.roast === 'dark') {
+      tips.push('Roast gelap mudah over-extract. Kalau pahit: naikkan grind setting atau turunkan suhu 2–3°C.');
+    }
+
+    if (s.strength === 'strong') {
+      tips.push('3 tuangan di Fase 2 = body lebih tebal. Pastikan grind tidak terlalu halus.');
+    } else if (s.strength === 'light') {
+      tips.push('1 tuangan di Fase 2 = body lebih ringan dan clean. Baik untuk eksperimen pertama.');
+    }
+
+    tips.push('Tunggu bed kopi terlihat kering sebelum tuangan berikutnya. Jangan terburu-buru.');
+
+    const container = document.getElementById('tips-content');
+    container.innerHTML = tips.map(t => `<div class="tip-item">${t}</div>`).join('');
+  }
+
+  // Init
+  recalc();
+  // Init process hint
+  const initHint = document.getElementById('process-hint');
+  if (initHint) initHint.innerHTML = processData['full-washed'].hint;
+</script>
+</body>
+</html>
